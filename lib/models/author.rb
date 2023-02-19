@@ -31,6 +31,14 @@ class Author
     author_in_db? ? update : create
   end
 
+  def delete
+    query = <<-SQL
+      DELETE FROM authors
+      WHERE authors.id = ?
+    SQL
+    DB.execute(query, @id)
+  end
+
   private
 
   def update
