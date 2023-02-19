@@ -38,6 +38,14 @@ class Post
     post_in_db? ? update : insert
   end
 
+  def destroy
+    query = <<-SQL
+      DELETE FROM posts
+      WHERE posts.id = ?
+    SQL
+    DB.execute(query, @id)
+  end
+
   def read?
     @read
   end
