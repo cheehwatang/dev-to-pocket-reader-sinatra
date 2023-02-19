@@ -33,4 +33,36 @@ class Post
     attributes['author'] = Author.find(attributes['author_id'])
     new(attributes.transform_keys(&:to_sym))
   end
+
+  def save
+    post_in_db? ? update : insert
+  end
+
+  def read?
+    @read
+  end
+
+  private
+
+  def update
+    query = <<-SQL
+      UPDATE posts
+      SET title = ?, content = ?, path = ?, read = ?, author_id = ?
+      WHERE posts.id = ?
+    SQL
+    DB.execute(query, @title, @content, @path, (read? ? 1 : 0), @author.id, @id)
+  end
+
+  def insert
+    query = <<-SQL
+      INSERT INTO posts (title, content, path, read, author_id)
+      VALUES(?, ?, ?, ?, ?)
+    SQL
+    DB.execute(query, @title, @content, @path, (read? ? 1 : 0), @author.id)
+    @id = DB.last_insert_row_id
+  end
+
+  def post_in_db?
+    !self.class.find(@id).nil?
+  end
 end

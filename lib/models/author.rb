@@ -1,6 +1,8 @@
 require 'pry-byebug'
 
 class Author
+  attr_reader :id
+
   def initialize(attributes = {})
     @id = attributes[:id] || 0
     @nickname = attributes[:nickname] || ''
