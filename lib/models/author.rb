@@ -15,7 +15,7 @@ class Author
       SELECT * FROM authors
     SQL
     DB.results_as_hash = true
-    DB.execute(query)
+    DB.execute(query).map { |attributes| new(attributes.transform_keys(&:to_sym)) }
   end
 
   def self.find(id)
@@ -24,14 +24,17 @@ class Author
       WHERE authors.id = ?
     SQL
     DB.results_as_hash = true
-    DB.execute(query, id).first
+    attributes = DB.execute(query, id).first
+    return nil if attributes.nil?
+
+    new(attributes.transform_keys(&:to_sym))
   end
 
   def save
-    author_in_db? ? update : create
+    author_in_db? ? update : insert
   end
 
-  def delete
+  def destroy
     query = <<-SQL
       DELETE FROM authors
       WHERE authors.id = ?
@@ -50,12 +53,13 @@ class Author
     DB.execute(query, @nickname, @name, @description, @posts_published, @comments_written, @id)
   end
 
-  def create
+  def insert
     query = <<-SQL
       INSERT INTO authors (nickname, name, description, posts_published, comments_written)
       VALUES(?, ?, ?, ?, ?)
     SQL
     DB.execute(query, @nickname, @name, @description, @posts_published, @comments_written)
+    @id = DB.last_insert_row_id
   end
 
   def author_in_db?
