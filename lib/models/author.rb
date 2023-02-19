@@ -15,4 +15,13 @@ class Author
     DB.results_as_hash = true
     DB.execute(query)
   end
+
+  def self.find(id)
+    query = <<-SQL
+      SELECT * FROM authors
+      WHERE authors.id = ?
+    SQL
+    DB.results_as_hash = true
+    DB.execute(query, id).first
+  end
 end
