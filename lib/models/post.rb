@@ -28,6 +28,8 @@ class Post
     SQL
     DB.results_as_hash = true;
     attributes = DB.execute(query, id).first
+    return nil if attributes.nil?
+
     attributes['author'] = Author.find(attributes['author_id'])
     new(attributes.transform_keys(&:to_sym))
   end
